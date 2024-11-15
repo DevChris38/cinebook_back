@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ImageEntity {
+public class Image {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
