@@ -1,0 +1,6 @@
+spring.security.oauth2.client.registration.github.client-id=Ov23liExp62PuyLnQ0vq
+spring.security.oauth2.client.registration.github.client-secret=0478a0014a7c4e427c04a86a4b78d8d41a4666c9
+spring.security.oauth2.client.registration.google.client-id=55904628013-a8n15mu2vaafcj4d5blc508nvsfaqq04.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=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
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8080/login/oauth2/default

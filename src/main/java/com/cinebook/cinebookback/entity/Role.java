@@ -1,12 +1,28 @@
 package com.cinebook.cinebookback.entity;
 
-import org.springframework.security.core.GrantedAuthority;
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
-public enum Role implements GrantedAuthority {
-    USER;
+import java.util.HashSet;
+import java.util.Set;
 
-    @Override
-    public String getAuthority() {
-        return name();
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Builder
+@Table(name = "role")
+public class Role {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "role_name")
+    private String roleName;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 }
