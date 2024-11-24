@@ -10,11 +10,14 @@ import com.cinebook.cinebookback.repository.UserRepository;
 import com.cinebook.cinebookback.security.CustomPasswordEncoder;
 import com.cinebook.cinebookback.configuration.SecurityConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -29,6 +32,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final SecurityConfig securityConfig;
     private final RoleRepository roleRepository;
+    private final JwtService jwtService;
 
     public ResponseEntity<AccountResponseDTO> register(RegisterRequestDTO registerRequestDTO) {
         if (userRepository.findByUsername(registerRequestDTO.getUsername()).isPresent()) {
@@ -58,15 +62,23 @@ public class AuthService {
     }
 
     public ResponseEntity<AccountResponseDTO> login(LoginRequestDTO loginRequestDTO) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(),
-                            loginRequestDTO.getPassword())
-            );
-            System.out.println("$$$$ auth : " + authentication);
-        } catch (AuthenticationException e) {
-            System.out.println("$$$$ err : " + e.getMessage());
-        }
-        return null;
+        var user = userRepository.findByUsername(loginRequestDTO.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(),
+                        loginRequestDTO.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        var jwtToken = jwtService.generateToken(user);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Acces-Control-Expose-Headers", "Authorization");
+        responseHeaders.add("Authorization", "Bearer " + jwtToken);
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(AccountResponseDTO.builder()
+                        .message("Utilisateur authentifié avec succès")
+                        .build());
     }
 }
