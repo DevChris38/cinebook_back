@@ -79,6 +79,7 @@ public class AuthService {
                 .headers(responseHeaders)
                 .body(AccountResponseDTO.builder()
                         .message("Utilisateur authentifié avec succès")
+                        .userName(loginRequestDTO.getUsername())
                         .build());
     }
 }
