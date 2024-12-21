@@ -50,6 +50,7 @@ public class AuthService {
                     .username(registerRequestDTO.getUsername())
                     .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
                     .roles(roles)
+                    .imgProfil("")
                     .build();
 
             userRepository.save(user);
@@ -61,10 +62,37 @@ public class AuthService {
 
     }
 
-    public ResponseEntity<AccountResponseDTO> login(LoginRequestDTO loginRequestDTO) {
-        var user = userRepository.findByUsername(loginRequestDTO.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
+    public ResponseEntity<AccountResponseDTO> loginbyUsername(LoginRequestDTO loginRequestDTO) {
+        var user = userRepository.findByUsername(loginRequestDTO.getUsername());
+        if (user.isPresent()) {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(),
+                            loginRequestDTO.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            var jwtToken = jwtService.generateToken(user.get());
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add("Acces-Control-Expose-Headers", "Authorization");
+            responseHeaders.add("Authorization", "Bearer " + jwtToken);
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(AccountResponseDTO.builder()
+                            .message("Utilisateur authentifié avec succès")
+                            .userName(loginRequestDTO.getUsername())
+                            .imgProfil(user.get().getImgProfil())
+                            .build());
+        } else {
+            return this.loginbyEmail(loginRequestDTO);
+        }
+    }
+
+    public ResponseEntity<AccountResponseDTO> loginbyEmail(LoginRequestDTO loginRequestDTO) {
+        var user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(),
+                new UsernamePasswordAuthenticationToken(user.getUsername(),
                         loginRequestDTO.getPassword())
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -79,7 +107,8 @@ public class AuthService {
                 .headers(responseHeaders)
                 .body(AccountResponseDTO.builder()
                         .message("Utilisateur authentifié avec succès")
-                        .userName(loginRequestDTO.getUsername())
+                        .userName(user.getUsername())
+                        .imgProfil(user.getImgProfil())
                         .build());
     }
 }

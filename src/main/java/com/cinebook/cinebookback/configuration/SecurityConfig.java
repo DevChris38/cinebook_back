@@ -31,7 +31,8 @@ public class SecurityConfig {
                         .allowedOrigins("http://localhost:4200") // Remplacez par l'URL de votre frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true); // Pour gérer les cookies et les autorisations
+                        .allowCredentials(true) // Pour gérer les cookies et les autorisations
+                        .exposedHeaders("Authorization");
             }
         };
     }

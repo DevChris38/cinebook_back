@@ -27,6 +27,6 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<AccountResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
-        return authService.login(loginRequestDTO);
+        return authService.loginbyUsername(loginRequestDTO);
     }
 }

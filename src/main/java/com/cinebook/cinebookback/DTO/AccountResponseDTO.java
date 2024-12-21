@@ -8,4 +8,6 @@ import lombok.Data;
 public class AccountResponseDTO {
     private String message;
     private String userName;
+    private String imgProfil;
+
 }
