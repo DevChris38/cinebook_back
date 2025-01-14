@@ -3,12 +3,15 @@ package com.cinebook.cinebookback.service.impl;
 import com.cinebook.cinebookback.DTO.AccountResponseDTO;
 import com.cinebook.cinebookback.DTO.LoginRequestDTO;
 import com.cinebook.cinebookback.DTO.RegisterRequestDTO;
-import com.cinebook.cinebookback.entity.Role;
-import com.cinebook.cinebookback.entity.User;
+import com.cinebook.cinebookback.entity.*;
+import com.cinebook.cinebookback.repository.JobRepository;
+import com.cinebook.cinebookback.repository.RegionRepository;
 import com.cinebook.cinebookback.repository.RoleRepository;
 import com.cinebook.cinebookback.repository.UserRepository;
 import com.cinebook.cinebookback.security.CustomPasswordEncoder;
 import com.cinebook.cinebookback.configuration.SecurityConfig;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +39,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final SecurityConfig securityConfig;
     private final RoleRepository roleRepository;
+    private final JobRepository jobRepository;
+    private final RegionRepository regionRepository;
     private final JwtService jwtService;
 
     public ResponseEntity<AccountResponseDTO> register(RegisterRequestDTO registerRequestDTO) {
@@ -41,17 +50,46 @@ public class AuthService {
                     .build());
         } else {
             Set<Role> roles = new HashSet<>();
-            for (String role : registerRequestDTO.getRole()) {
+            /*for (String role : registerRequestDTO.getRole()) {
                 roles.add(roleRepository.findByRoleName(role));
+            }*/
+            roles.add(roleRepository.findByRoleName(String.valueOf(RoleName.USER)));
+
+            Set<Job> jobs = new HashSet<>();
+            for (String job : registerRequestDTO.getJobs()) {
+                if (jobRepository.findByCode(job).isPresent()) {
+                    jobs.add(jobRepository.findByCode(job).get());
+                }
             }
 
+            Set<Region> regions = new HashSet<>();
+            for (String region : registerRequestDTO.getRegions()) {
+                if (regionRepository.findByCode(region).isPresent()) {
+                    regions.add(regionRepository.findByCode(region).get());
+                }
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = now.format(formatter);
 
             var user = User.builder()
                     .username(registerRequestDTO.getUsername())
                     .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
                     .roles(roles)
-                    .imgProfil("")
+                    .imgProfil(registerRequestDTO.getImgProfil())
+                    .firstname(registerRequestDTO.getFirstname())
+                    .lastname(registerRequestDTO.getLastname())
+                    .sexe(registerRequestDTO.getSexe())
+                    .phone(registerRequestDTO.getPhone())
+                    .email(registerRequestDTO.getEmail())
+                    .inscriptionDate(formattedDate)
+                    .isPremium(false)
+                    .jobs(jobs)
+                    .regions(regions)
                     .build();
+
 
             userRepository.save(user);
 

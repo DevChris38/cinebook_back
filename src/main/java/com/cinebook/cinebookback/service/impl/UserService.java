@@ -1,8 +1,10 @@
 package com.cinebook.cinebookback.service.impl;
 
+import com.cinebook.cinebookback.DTO.UserFilterRequestDTO;
 import com.cinebook.cinebookback.DTO.UserUpdateDTO;
 import com.cinebook.cinebookback.dto.UserDTO;
 import com.cinebook.cinebookback.entity.User;
+import com.cinebook.cinebookback.entity.specification.UserSpecification;
 import com.cinebook.cinebookback.mapper.UserMapper;
 import com.cinebook.cinebookback.repository.JobRepository;
 import com.cinebook.cinebookback.repository.RegionRepository;
@@ -11,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,5 +41,14 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         User userUpdated = userRepository.save(UserMapper.toEntityForUpdate(user, userUpdateDTO, userRepository, jobRepository, regionRepository));
         return UserMapper.toDto(userUpdated);
+    }
+
+    public List<UserDTO> getUsersWithFilters(UserFilterRequestDTO filter) {
+        List<User> userList = userRepository.findAll(UserSpecification.filterBy(filter));
+        List<UserDTO> userDTOList = new ArrayList<>();
+        for (User user : userList) {
+            userDTOList.add(UserMapper.toDto(user));
+        }
+        return userDTOList;
     }
 }
