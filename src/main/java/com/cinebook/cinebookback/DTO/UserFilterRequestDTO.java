@@ -8,6 +8,6 @@ import lombok.Setter;
 public class UserFilterRequestDTO {
     private String username;
     private String email;
-    private String role;
-    private Boolean isPremium;
+    private String job;
+    private String region;
 }

@@ -99,23 +99,11 @@ CREATE TABLE customer_job
     FOREIGN KEY (job_id) REFERENCES job (id)
 );
 
-INSERT INTO customer_job (customer_id, job_id)
-VALUES (1, 10),
-       (1, 2),
-       (1, 5),
-       (2, 8);
-
 CREATE TABLE customer_region
 (
     customer_id INT NOT NULL,
     region_id   INT NOT NULL,
     PRIMARY KEY (customer_id, region_id),
     FOREIGN KEY (customer_id) REFERENCES customer (id),
-    FOREIGN KEY (region_id) REFERENCES region (id)
+    FOREIGN KEY (region_id) REFERENCES job (id)
 );
-
-INSERT INTO customer_region (customer_id, region_id)
-VALUES (1, 10),
-       (2, 2),
-       (2, 5),
-       (2, 8);

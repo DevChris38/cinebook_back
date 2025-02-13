@@ -37,4 +37,10 @@ public class UserDemoController {
         List<UserDTO> users = userService.getUsersWithFilters(filter);
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/data")
+    public ResponseEntity<UserDTO> getUserData(@RequestHeader("Authorization") String authorizationHeader) {
+        UserDTO user = userService.getUserData(authorizationHeader);
+        return ResponseEntity.ok(user);
+    }
 }

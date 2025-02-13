@@ -32,8 +32,14 @@ public class User implements UserDetails {
     )
     private Collection<Role> roles;
 
-    @Column(name = "img_profil")
-    private String imgProfil;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "img_profil", referencedColumnName = "id")
+    private Image imgProfil;
+
+    @Nullable
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
+    private Project project;
 
     private String firstname;
 

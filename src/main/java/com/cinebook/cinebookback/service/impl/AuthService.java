@@ -4,10 +4,7 @@ import com.cinebook.cinebookback.DTO.AccountResponseDTO;
 import com.cinebook.cinebookback.DTO.LoginRequestDTO;
 import com.cinebook.cinebookback.DTO.RegisterRequestDTO;
 import com.cinebook.cinebookback.entity.*;
-import com.cinebook.cinebookback.repository.JobRepository;
-import com.cinebook.cinebookback.repository.RegionRepository;
-import com.cinebook.cinebookback.repository.RoleRepository;
-import com.cinebook.cinebookback.repository.UserRepository;
+import com.cinebook.cinebookback.repository.*;
 import com.cinebook.cinebookback.security.CustomPasswordEncoder;
 import com.cinebook.cinebookback.configuration.SecurityConfig;
 import jakarta.annotation.Nullable;
@@ -40,6 +37,7 @@ public class AuthService {
     private final SecurityConfig securityConfig;
     private final RoleRepository roleRepository;
     private final JobRepository jobRepository;
+    private final ImageRepository imageRepository;
     private final RegionRepository regionRepository;
     private final JwtService jwtService;
 
@@ -74,11 +72,15 @@ public class AuthService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedDate = now.format(formatter);
 
+            Image image = new Image(registerRequestDTO.getPath(), registerRequestDTO.getImgProfil());
+
+            imageRepository.save(image);
+
             var user = User.builder()
                     .username(registerRequestDTO.getUsername())
                     .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
                     .roles(roles)
-                    .imgProfil(registerRequestDTO.getImgProfil())
+                    .imgProfil(image)
                     .firstname(registerRequestDTO.getFirstname())
                     .lastname(registerRequestDTO.getLastname())
                     .sexe(registerRequestDTO.getSexe())
@@ -120,7 +122,7 @@ public class AuthService {
                     .body(AccountResponseDTO.builder()
                             .message("Utilisateur authentifié avec succès")
                             .userName(loginRequestDTO.getUsername())
-                            .imgProfil(user.get().getImgProfil())
+                            .imgProfil(user.get().getImgProfil().getLink())
                             .build());
         } else {
             return this.loginbyEmail(loginRequestDTO);
@@ -146,7 +148,7 @@ public class AuthService {
                 .body(AccountResponseDTO.builder()
                         .message("Utilisateur authentifié avec succès")
                         .userName(user.getUsername())
-                        .imgProfil(user.getImgProfil())
+                        .imgProfil(user.getImgProfil().getLink())
                         .build());
     }
 }

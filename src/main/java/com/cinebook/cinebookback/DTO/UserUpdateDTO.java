@@ -20,6 +20,7 @@ public class UserUpdateDTO {
     private String lastname;
     private String sexe;
     private String imgProfil;
+    private String path;
     private Optional<String> phone;
     private String email;
     private Set<String> jobs = new HashSet<>();

@@ -2,14 +2,13 @@ package com.cinebook.cinebookback.mapper;
 
 import com.cinebook.cinebookback.DTO.UserUpdateDTO;
 import com.cinebook.cinebookback.dto.UserDTO;
-import com.cinebook.cinebookback.entity.Job;
-import com.cinebook.cinebookback.entity.Region;
-import com.cinebook.cinebookback.entity.Role;
-import com.cinebook.cinebookback.entity.User;
+import com.cinebook.cinebookback.entity.*;
+import com.cinebook.cinebookback.repository.ImageRepository;
 import com.cinebook.cinebookback.repository.JobRepository;
 import com.cinebook.cinebookback.repository.RegionRepository;
 import com.cinebook.cinebookback.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +17,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserMapper {
+
+    private final ImageRepository imageRepository;
 
     // Méthode de conversion depuis l'entité User
     public static UserDTO toDto(User user) {
         return UserDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .imgProfil(user.getImgProfil())
+                .imgProfil(user.getImgProfil().getLink())
+                .path(user.getImgProfil().getPath())
                 .roles(user.getRoles().stream()
                         .map(Role::getRoleName) // Transforme les objets Role en noms de rôle
                         .collect(Collectors.toSet()))
@@ -42,16 +45,19 @@ public class UserMapper {
                 .regions(user.getRegions().stream()
                         .map(Region::getCode)
                         .collect(Collectors.toSet()))
+                .project(user.getProject())
                 .build();
     }
 
-    public static User toEntity(UserDTO userDTO, UserRepository userRepository) {
+    public static User toEntity(UserDTO userDTO, UserRepository userRepository, ImageRepository imageRepository) {
+        Image image = imageRepository.findImageByLink(userDTO.getImgProfil());
+
         User user = userRepository.findById(userDTO.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setId(userDTO.getId());
         user.setUsername(userDTO.getUsername());
-        user.setImgProfil(userDTO.getImgProfil());
+        user.setImgProfil(image);
 
         // Transforme les noms de rôle en objets Role
         user.setRoles(userDTO.getRoles().stream()
@@ -69,6 +75,7 @@ public class UserMapper {
         user.setEmail(userDTO.getEmail());
         user.setInscriptionDate(userDTO.getInscriptionDate());
         user.setIsPremium(userDTO.getIsPremium());
+        user.setProject(userDTO.getProject());
 
         // Transforme les codes des jobs en objets Job
         user.setJobs(userDTO.getJobs().stream()
@@ -91,8 +98,9 @@ public class UserMapper {
         return user;
     }
 
-    public static User toEntityForUpdate(User user, UserUpdateDTO userUpdateDTO, UserRepository userRepository, JobRepository jobRepository, RegionRepository regionRepository) {
-        user.setImgProfil(userUpdateDTO.getImgProfil());
+    public static User toEntityForUpdate(User user, UserUpdateDTO userUpdateDTO, Image image, UserRepository userRepository, JobRepository jobRepository, RegionRepository regionRepository, ImageRepository imageRepository) {
+
+        user.setImgProfil(image);
 
         user.setFirstname(userUpdateDTO.getFirstname());
         user.setLastname(userUpdateDTO.getLastname());

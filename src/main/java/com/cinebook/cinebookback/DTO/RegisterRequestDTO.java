@@ -17,6 +17,7 @@ public class RegisterRequestDTO {
     private String phone;
     private String email;
     private String imgProfil;
+    private String path;
     private Collection<String> jobs;
     private Collection<String> regions;
     private List<String> role;
