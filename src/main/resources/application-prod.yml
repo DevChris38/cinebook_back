@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: cinebook-back
+  datasource:
+    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/database-1
+    username: admin
+    password: Eti6h8zc*
+    driver-class-name: org.mariadb.jdbc.Driver
+  flyway:
+    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/database-1
+    user: admin
+    password: Eti6h8zc*
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+  jwt:
+    security:
+      key: 94c9284471e16a5cff6a59e8bd13c96e7b1e1661b6df7190a403e99787620035
+server:
+  max-http-request-header-size: 64KB
+logging:
+  level.com:
+    zaxxer:
+      hikari: DEBUG
+  level.org:
+    springframework:
+      web: DEBUG

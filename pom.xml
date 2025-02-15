@@ -150,10 +150,6 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.10.0</version>
                 <configuration>
-                    <url>jdbc:mariadb://localhost:3306/cinebook</url>
-                    <user>chris2003</user>
-                    <password>Chris.2003</password>
-                    <schemas>public</schemas>
                     <locations>
                         <location>classpath:db/migration</location>
                     </locations>
