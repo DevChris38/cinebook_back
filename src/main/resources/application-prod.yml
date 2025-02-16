@@ -2,12 +2,12 @@ spring:
   application:
     name: cinebook-back
   datasource:
-    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/database-1
+    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/cinebook
     username: admin
     password: Eti6h8zc*
     driver-class-name: org.mariadb.jdbc.Driver
   flyway:
-    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/database-1
+    url: jdbc:mariadb://database-1.c1ecm2s2q17h.us-east-1.rds.amazonaws.com:3306/cinebook
     user: admin
     password: Eti6h8zc*
   jpa:
