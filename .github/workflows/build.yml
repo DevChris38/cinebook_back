@@ -28,3 +28,7 @@ jobs:
         with:
           name: backend-jar
           path: target/*.jar
+
+      - name: List all JARs in project
+        run: find . -name "*.jar"
+
