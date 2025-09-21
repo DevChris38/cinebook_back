@@ -11,8 +11,10 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -130,25 +132,39 @@ public class AuthService {
     }
 
     public ResponseEntity<AccountResponseDTO> loginbyEmail(LoginRequestDTO loginRequestDTO) {
-        var user = userRepository.findByEmail(loginRequestDTO.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable"));
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(),
-                        loginRequestDTO.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            var user = userRepository.findByEmail(loginRequestDTO.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(),
+                            loginRequestDTO.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        var jwtToken = jwtService.generateToken(user);
+            var jwtToken = jwtService.generateToken(user);
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add("Acces-Control-Expose-Headers", "Authorization");
-        responseHeaders.add("Authorization", "Bearer " + jwtToken);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.add("Access-Control-Expose-Headers", "Authorization");
+            responseHeaders.add("Authorization", "Bearer " + jwtToken);
 
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(AccountResponseDTO.builder()
-                        .message("Utilisateur authentifié avec succès")
-                        .userName(user.getUsername())
-                        .imgProfil(user.getImgProfil().getLink())
-                        .build());
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(AccountResponseDTO.builder()
+                            .message("User authenticated successfully")
+                            .userName(user.getUsername())
+                            .imgProfil(user.getImgProfil().getLink())
+                            .build());
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(AccountResponseDTO.builder()
+                            .message("User not found")
+                            .build());
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(AccountResponseDTO.builder()
+                            .message("Invalid credentials")
+                            .build());
+        }
     }
 }

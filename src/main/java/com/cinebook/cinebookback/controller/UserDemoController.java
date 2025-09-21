@@ -21,6 +21,7 @@ public class UserDemoController {
 
     @GetMapping("/hello")
     public UserDTO hello(@RequestHeader("Authorization") String authorizationHeader) {
+        System.out.println("Endpoint /hello appelé");
         return userService.getUserInformations(authorizationHeader);
     }
 
